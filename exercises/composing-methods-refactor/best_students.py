@@ -1,3 +1,5 @@
+# DROP ACTIVITY
+
 # By Kamran Bigdely Nov. 2020
 # Replace temp variable with query
 

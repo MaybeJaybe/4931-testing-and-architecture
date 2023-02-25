@@ -27,3 +27,7 @@ for key, value in foods.items():
     print()
     print("recipe", value[5])
     print("***")
+
+		# The dictionary carries too much info and is hard to read so we would suggest creating a food class where you can initialize it with the food’s name, prep time, is_veggie, food_type, cuisine, and recipe
+		# Our group would create a class named Recipe. It would have attributes including recipe_name, prep_time, is_veggie, food_type, cuisine, ingredients (a list), and instructions. Each print statement would be a method of the class
+		# Create a new class for the foods and move the print statements into class methods

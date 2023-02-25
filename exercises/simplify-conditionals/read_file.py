@@ -1,3 +1,5 @@
+# DROP ACTIVITY
+
 # by Kami Bigdely
 # Remove control flag
 # Reference: https://stackoverflow.com/a/10140333/81306
