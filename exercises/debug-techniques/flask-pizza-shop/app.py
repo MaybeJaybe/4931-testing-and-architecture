@@ -34,13 +34,16 @@ class Pizza(db.Model):
     order_name = db.Column(db.String(80), unique=False, nullable=False)
     size = db.Column(db.Enum(PizzaSize), nullable=False)
     crust_type = db.Column(db.Enum(CrustType), nullable=False)
+    # doesnt connect correctly with pizzaTopping?
     toppings = db.relationship('PizzaTopping')
+    # toppings = db.relationship('PizzaTopping', back_populates='pizza')
     fulfilled = db.Column(db.Boolean, default=False)
 
 class PizzaTopping(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     topping_type = db.Column(db.Enum(ToppingType))
     pizza_id = db.Column(db.Integer, db.ForeignKey('pizza.id'))
+    # pizza = db.relationship('Pizza', back_populates='toppings')
 
 with app.app_context():
     db.create_all()
@@ -64,29 +67,45 @@ def pizza_order_form():
 
 @app.route('/order', methods=['POST'])
 def pizza_order_submit():
-    order_name = request.form.get('name')
-    pizza_size_str = request.form.get('size')
+    order_name = request.form.get('order_name')
+    pizza_size_str = request.form.get('pizza_size')
     crust_type_str = request.form.get('crust_type')
-    toppings_list = request.form.get('toppings')
+    # toppings_list = request.form.get('toppings')
+    toppings_list = request.form.getlist('toppings')
+
+    print('ORDER NAME', order_name)
+    # print(pizza_size_str, crust_type_str, 'CRUST PIZZA WITH', toppings_list)
+    # only declaring one topping...should get whole list.
+    print(pizza_size_str, crust_type_str, 'CRUST PIZZA WITH', ', '.join(toppings_list))
 
     pizza = Pizza(
         order_name=order_name,
         size=pizza_size_str,
         crust_type=crust_type_str)
-    print(pizza.size)
+    
+    print('DECLARED TEST')
+    print(pizza.order_name, pizza.size, pizza.crust_type)
 
-    for topping_str in ToppingType:
-        pizza.toppings.append(PizzaTopping(topping=topping_str))
+    for topping_str in toppings_list:
+        # doesnt like this, topping is invalid keyword for PizzaTopping
+        pizza.toppings.append(PizzaTopping(topping_type=topping_str))
 
     db.session.add(pizza)
+    db.session.commit()
 
     flash('Your order has been submitted!')
-    return redirect(url_for('/'))
+    # url cant build '/', trying 'fulfill_order' as suggested
+    # return redirect(url_for('fulfill_order'))
+    return redirect(url_for('home'))
 
 @app.route('/fulfill', methods=['POST'])
 def fulfill_order():
     pizza_id = request.form.get('pizza_id')
+    # prints None when should be pizza_id
+    print('pizza id in fulfill:', pizza_id)
+    # NoResultFound error: no row was found for one()...what even
     pizza = Pizza.query.filter_by(id=pizza_id).one()
+    # attributeerror: nonetype object has no attribute 'fulfilled'
 
     pizza.fulfilled = True
     db.session.add(pizza)
